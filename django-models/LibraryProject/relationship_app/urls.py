@@ -1,30 +1,26 @@
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
+from .models import Book
 from . import views
+from .views import list_books, UserCreationForm, add_book, edit_book, delete_book, admin_dashboard, librarian_dashboard, membership_dashboard
+from . import admin_view, librarian_view, member_view
+# from .admin_view import admin_dashboard
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
-    # Book management URLs - exactly as expected by ALX checker
+    path('', views.list_books , name='book'),
+    # path('', views.current_datetime , name='time'),
+    path('library/<int:pk>/', views.ViewLibrary.as_view(), name='view_library' ),
+    path('accounts/login/', LoginView.as_view(template_name='relationship_app/login.html'), name='login'),
+    path('accounts/logout/', LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
+    path('accounts/register/', UserCreationForm.as_view(template_name='relationship_app/register.html'), name='register'),
+    path('admin-only/', views.admin_dashboard, name='admin_view'),
+    path('librarian/', views.librarian_dashboard, name='librarian_view'),
+    path('member/', views.membership_dashboard, name='member_view'),
     path('add_book/', views.add_book, name='add_book'),
-    path('edit_book/', views.edit_book, name='edit_book'),
-    path('books/<int:book_id>/delete/', views.delete_book, name='delete_book'),
-    
-    # Authentication URLs
-    path('login/', LoginView.as_view(template_name='relationship_app/login.html'), name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
-    path('register/', views.register, name='register'),
-    
-    # Home and main pages
-    path('', views.home_view, name='home'),
-    
-    # Role-based views (these are critical for ALX checks)
-    path('admin/', views.admin_view, name='admin_view'),
-    path('librarian/', views.librarian_view, name='librarian_view'),
-    path('member/', views.member_view, name='member_view'),
-    
-    # Access control
-    path('access_denied/', views.access_denied, name='access_denied'),
-    
-    # Library functionality
-    path('books/', views.list_books, name='list_books'),
-    path('library/<int:pk>/', views.LibraryDetailView.as_view(), name='library_detail'),
+    path('edit_book/<int:pk>/', views.edit_book, name='edit_book'),
+    path('delete_book/<int:pk>/', views.delete_book, name='delete_book')
 ]
+
+
+# views.register
+# LibraryDetailView
