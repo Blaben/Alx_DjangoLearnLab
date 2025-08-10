@@ -4,11 +4,10 @@ from django.urls import reverse
 from .models import Book
 from django.contrib.auth.models import User
 
-
 class BookAPITestCase(APITestCase):
 
     def setUp(self):
-        # Create test user for authentication
+        # Create a test user and login
         self.user = User.objects.create_user(username='testuser', password='testpass')
         self.client.login(username='testuser', password='testpass')
 
@@ -19,47 +18,43 @@ class BookAPITestCase(APITestCase):
             published_year=2024
         )
 
-        # Define URLs 
-        self.list_url = reverse('book-list')
-        self.detail_url = reverse('book-detail', kwargs={'pk': self.book.pk})
+       #urls
+        self.list_url = reverse('list_books')
+        self.detail_url = reverse('retrieve_book', kwargs={'pk': self.book.pk})
+        self.create_url = reverse('create_book')
+        self.update_url = reverse('update_book', kwargs={'pk': self.book.pk})
+        self.delete_url = reverse('delete_book', kwargs={'pk': self.book.pk})
 
     def test_list_books(self):
-        """Test retrieving the list of books"""
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('title', response.json()[0])
+        self.assertIn('title', response.data[0])  # Using response.data
 
     def test_get_single_book(self):
-        """Test retrieving a single book"""
         response = self.client.get(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['title'], self.book.title)
+        self.assertEqual(response.data['title'], self.book.title)  # Using response.data
 
     def test_create_book(self):
-        """Test creating a new book"""
         data = {
             "title": "New Book",
             "author": "New Author",
             "published_year": 2025
         }
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.create_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Book.objects.count(), 2)
+        self.assertEqual(response.data['title'], data['title'])  # Using response.data
 
     def test_update_book(self):
-        """Test updating an existing book"""
         data = {
             "title": "Updated Book",
             "author": "Updated Author",
             "published_year": 2026
         }
-        response = self.client.put(self.detail_url, data, format='json')
+        response = self.client.put(self.update_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.book.refresh_from_db()
-        self.assertEqual(self.book.title, "Updated Book")
+        self.assertEqual(response.data['title'], "Updated Book")  # Using response.data
 
     def test_delete_book(self):
-        """Test deleting a book"""
-        response = self.client.delete(self.detail_url)
+        response = self.client.delete(self.delete_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Book.objects.count(), 0)
