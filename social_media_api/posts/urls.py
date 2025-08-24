@@ -13,3 +13,10 @@ urlpatterns = [
 urlpatterns = [
     path("feed/", views.feed, name="feed"),
 ]
+
+
+urlpatterns = [
+    path("feed/", views.feed, name="feed"),
+    path("<int:pk>/like/", views.like_post, name="like_post"),
+    path("<int:pk>/unlike/", views.unlike_post, name="unlike_post"),
+]
