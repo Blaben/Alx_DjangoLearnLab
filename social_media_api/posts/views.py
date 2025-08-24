@@ -7,7 +7,8 @@ from .serializers import PostSerializer
 @api_view(["GET"])
 def feed(request):
     user = request.user
-    following_users = user.following.all()  # assuming `following` is a ManyToMany field on CustomUser
+    following_users = user.following.all()  
     posts = Post.objects.filter(author__in=following_users).order_by("-created_at")
     serializer = PostSerializer(posts, many=True)
+    permissions.IsAuthenticated
     return Response(serializer.data)
