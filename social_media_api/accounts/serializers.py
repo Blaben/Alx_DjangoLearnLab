@@ -7,3 +7,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = '__all__'
         
+   serializers.CharField()
+    Token.objects.create
+    get_user_model().objects.create_user
