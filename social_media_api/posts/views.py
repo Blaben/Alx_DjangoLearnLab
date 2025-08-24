@@ -1,25 +1,13 @@
 from django.shortcuts import render
-from rest_framework import generics, status
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Post
+from .serializers import PostSerializer
 
-'''
-CRUD operations for Posts
-'''
-class PostViewStets(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
-
-'''
-CRUD operations for Comments
-'''
-class CommentViewStets(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-
-# permissions.IsAuthenticated, generics.get_object_or_404(Post, pk=pk), Like.objects.get_or_create(user=request.user, post=post), Notification.objects.create
-
-
+@api_view(["GET"])
+def feed(request):
+    user = request.user
+    following_users = user.following.all()  # assuming `following` is a ManyToMany field on CustomUser
+    posts = Post.objects.filter(author__in=following_users).order_by("-created_at")
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
